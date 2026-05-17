@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>भजन / आरती संग्रह</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #fff8ec;
+      --card: #ffffff;
+      --text: #3b2300;
+      --muted: #7a4b15;
+      --primary: #7f1d1d;
+      --primary2: #c2410c;
+      --accent: #f59e0b;
+      --border: #f0c987;
+      --soft: #fff1c7;
+      --shadow: rgba(127, 29, 29, 0.14);
+      --lyricSize: 25px;
+    }
+    body.dark {
+      --bg: #130f0a;
+      --card: #21170f;
+      --text: #fff5df;
+      --muted: #e6c58d;
+      --primary: #f59e0b;
+      --primary2: #fbbf24;
+      --accent: #fde68a;
+      --border: #684b24;
+      --soft: #332312;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans Devanagari", "Mangal", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    .app-header {
+      background: linear-gradient(135deg, #7f1d1d, #c2410c, #f59e0b);
+      color: #fff;
+      padding: 16px 14px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+    }
+    .header-row {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .app-header h1 {
+      margin: 0;
+      font-size: clamp(22px, 5vw, 34px);
+      line-height: 1.2;
+    }
+    .count-text { font-size: 13px; opacity: 0.92; margin-top: 4px; }
+    .icon-btn, .small-btn {
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .library, .reader {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px 12px 90px;
+    }
+    .search-box {
+      position: sticky;
+      top: 74px;
+      z-index: 45;
+      background: var(--bg);
+      padding: 10px 0 11px;
+    }
+    .search-box input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 15px 16px;
+      border-radius: 16px;
+      font-size: 18px;
+      outline: none;
+      box-shadow: 0 3px 14px var(--shadow);
+    }
+    .categories {
+      display: flex;
+      gap: 9px;
+      overflow-x: auto;
+      padding: 8px 0 14px;
+      scrollbar-width: none;
+    }
+    .categories::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      flex: 0 0 auto;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .cat-btn.active {
+      background: var(--primary);
+      color: var(--bg);
+      border-color: var(--primary);
+    }
+    .song-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .song-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 15px;
+      box-shadow: 0 5px 18px var(--shadow);
+      cursor: pointer;
+    }
+    .song-card h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.35;
+      color: var(--primary);
+    }
+    .song-card p {
+      margin: 8px 0 0;
+      font-size: 10px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 10px;
+      background: var(--soft);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 2px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .empty {
+      text-align: center;
+      padding: 36px 12px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    .reader { display: none; }
+    .reader-top {
+      position: sticky;
+      top: 0;
+      z-index: 70;
+      background: linear-gradient(135deg, #7f1d1d, #c2410c, #f59e0b);
+      margin: -14px -12px 14px;
+      padding: 12px;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+    }
+    .reader-row {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .reader-actions { display: flex; gap: 7px; align-items: center; }
+    .reader-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px var(--shadow);
+    }
+    .reader-head {
+      background: linear-gradient(180deg, var(--soft), var(--card));
+      border-bottom: 1px solid var(--border);
+      padding: 18px 16px 12px;
+    }
+    .reader-head h2 {
+      margin: 0;
+      color: var(--primary);
+      font-size: clamp(27px, 6vw, 42px);
+      line-height: 1.35;
+    }
+    .lyrics {
+      white-space: pre-line;
+      padding: 20px 16px 30px;
+      font-size: var(--lyricSize);
+      line-height: 2.1;
+      letter-spacing: 0.1px;
+    }
+    .chorus {
+      background: var(--soft);
+      border-left: 6px solid var(--primary2);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin: 8px 0 16px;
+      font-weight: 900;
+    }
+    .note {
+      margin: 16px;
+      background: var(--soft);
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .nav-btn {
+      border: none;
+      background: var(--primary);
+      color: var(--bg);
+      padding: 14px 12px;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+    .floating-top {
+      position: fixed;
+      right: 16px;
+      bottom: 18px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary);
+      color: var(--bg);
+      font-size: 25px;
+      font-weight: 900;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 80;
+    }
+    @media (min-width: 760px) {
+      .song-list { grid-template-columns: repeat(2, 1fr); }
+      .lyrics { padding: 28px 34px 40px; }
+      .reader-head { padding: 26px 34px 16px; }
+    }
+    @media (max-width: 480px) {
+      .app-header { padding-top: 13px; }
+      .search-box { top: 67px; }
+      .icon-btn, .small-btn { padding: 8px 10px; font-size: 15px; }
+      .song-card h2 { font-size: 21px; }
+      .lyrics { line-height: 2.15; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header" id="topHeader">
+    <div class="header-row">
+      <div>
+        <h1>भजन / आरती संग्रह</h1>
+        <div class="count-text" id="songCount">गीत सूची</div>
+      </div>
+      <button class="icon-btn" onclick="toggleDarkMode()" aria-label="Dark Mode">🌙</button>
+    </div>
+  </header>
+
+  <section class="library" id="libraryView">
+    <div class="search-box">
+      <input id="searchInput" type="search" placeholder="भजन खोजें... जैसे कृष्ण, गोविन्द" oninput="renderSongs()" />
+    </div>
+
+    <div class="categories" id="categoryButtons"></div>
+    <div class="song-list" id="songList"></div>
+  </section>
+
+  <section class="reader" id="readerView">
+    <div class="reader-top">
+      <div class="reader-row">
+        <button class="small-btn" onclick="backToLibrary()">← सूची</button>
+        <div class="reader-actions">
+          <button class="small-btn" onclick="changeFont(-2)">A−</button>
+          <button class="small-btn" onclick="changeFont(2)">A+</button>
+          <button class="small-btn" onclick="toggleDarkMode()">🌙</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="reader-card">
+      <div class="reader-head">
+        <h2 id="readerTitle"></h2>
+        <span class="badge" id="readerCategory"></span>
+      </div>
+      <div class="lyrics" id="readerLyrics"></div>
+      <div class="note" id="readerNote" style="display:none;"></div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="nav-btn" onclick="openRelativeSong(-1)">← पिछला</button>
+      <button class="nav-btn" onclick="openRelativeSong(1)">अगला →</button>
+    </div>
+  </section>
+
+  <button class="floating-top" onclick="scrollTopPage()" aria-label="ऊपर जाएँ">↑</button>
+
+  <script>
+    const songs = [
+	{
+title: "॥ मंगलाचरण ॥ ",
+        category: "मंगलाचरण",
+        search: "",
+        preview: "",
+lyrics:`ॐ नमो भगवते वासुदेवाय।
+स्वस्ति श्री गणेशाय नमः॥ 
+श्री सरस्वत्यै नमः। 
+श्री गुरुभ्यो नमः॥
+
+विघ्नेश्वराय वरदाय सुरप्रियाय लम्बोदराय सकलाय जगद्धिताय । 
+नागाननाय श्रुतियज्ञविभूषिताय गौरीसुताय गणनाथ ! नमो नमस्ते
+
+शुक्लां ब्रह्मविचार सार परमामाद्यां जगद्व्यापिनींवीणा-पुस्तक-धारिणीमभयदां जाड्यान्धकारापहाम्‌।हस्ते स्फटिकमालिकां विदधतीं पद्मासने संस्थिताम्‌वन्दे तां परमेश्वरीं भगवतीं बुद्धिप्रदां शारदाम्‌॥
+
+कस्तूरी तिलकं ललाटपटले वक्षःस्थले कौस्तुभंनासाग्रे नवमौक्तिकं करतले वेणुः करे कंकणम् ।सर्वाङ्गे हरिचन्दनं सुललितं कण्ठे च मुक्तावलि-र्गोपास्त्री-परिवेष्टितो विजयते गोपालचूडामणिः ॥
+
+वंशी विभूषित करान नवनीरदाभात पीतांम्बराकृष्णविशालाक्षयोरुदात। पूर्णेन्दुसुन्दरमुखारविन्दनेत्रात् कृष्णात्परं किमपि तत्त्वमहं न जाने॥ 
+
+कृष्ण त्वदीय पद पंकज पंजरान्ते अद्यैव मे विशतुमानस राजहंस। प्राणप्रयाणसमये कफवातपित्तैः कण्ठावरोधनविधौ स्मरणं कुतस्ते॥
+
+सच्चिदानन्दरूपाय विश्वोत्पत्यादि हेतवे। तापत्रय विनाशाय श्रीकृष्णाय वयं नुमः॥
+
+नमोऽस्तुते व्यास विशालबुद्धे फुल्लारविन्दायतपत्रनेत्र। येन त्वया भारततैल पूर्णः प्रज्वालितो ज्ञानमयः प्रदीपः॥ 
+
+यं  प्रवजन्तमनुपेतमपेतकृत्यं द्वैपायनो विरहकातर आजुहाव। पुत्रेति तन्मयतया तरवोऽभिनेदुः सर्वभूदहृदयो मुनिमानतोऽस्मि॥`},
+	{
+        title: "जय जय भागवत देव",
+        category: "भागवत",
+        search: "जय जय भागवत देव जय भागवत राधाकृष्णस्वरूप",
+        preview: "जय जय राधाकृष्णस्वरूप...",
+        lyrics: `जय जय भागवत देव 
+जय जय भागवत।
+जय जय राधाकृष्णस्वरूप
+जय जय भागवत ।। देव
+
+पटुतरमरूभूमौ चरताम् पथि पथि परिपतताम्
+प्रतिपदललितं त्वां त्यक्त्वा परमसुखं कुतः ।। देव
+
+परमपदे भगवान् भक्त परिपालनगुणवान्।
+कमलभवाय कृपया त्वां निज कमलमुखेन ददौ।। देव
+
+नवनवरसभरितं दिव्यं नारायणमुख गलितम्।
+नलिनासनदेवः प्रददौ नारदमुनये त्वाम्।। देव
+
+आलोड्याखिलशास्रम् भगवान् अनवाप्य मनः शान्तिम्।
+आस्वाद्यातुलरसम् ते शाश्वतम् आनन्दमाप परम्।। देव
+
+निगमान्ततरोर्गलिं मधुरं निरवद्यपदलसितम्।
+निर्गुणनिष्ठोपि श्री शुको नित्यं पिबति त्वाम्।। देव
+
+कलिमलहरणं त्वां श्रुत्वा कैवल्यसुखप्रदम्।
+कृष्णप्रमनिमग्नो राजा
+कृषणपदाबुजमाप ।। देव
+
+जय जय भागवत देव 
+जय जय भागवत देव ।
+जय जय राधाकृष्णस्वरूप
+जय जय भागवत।।`
+      },
+      {
+        title: "जयदेव जयदेव श्रीमद्भागवता ",
+        category: "भागवत",
+        search: "भागवताची आरती जयदेव जयदेव श्रीमद्भागवता",
+        preview: "जयदेव जयदेव श्रीमद्भागवता...",
+        lyrics: `
+जयदेव जयदेव श्रीमद्भागवता ।
+श्रवणें मननें पठणें भक्ती ये हाता ॥ धृ ॥
+
+वेदाचें हें सार पाहे रसभरित ।
+दशलक्षण हें आहे लक्षीत ॥ जय ॥ १॥
+
+द्वादश स्कंधामध्यें हरीची लीळा ।
+तिनशें पस्तिस अध्ये गाती गोपाळा ॥ जय ॥ २॥
+
+अठरा सहस्र श्लोक गाती ऐकती ।
+ज्यासी हरीभक्ती त्यासी तत्प्राप्ती ॥ जय ॥ ३॥
+
+गायत्रीचें मंत्ररूप हें पाहें ।
+परीक्षिति-शुकसंवाद आहे ॥ जय ॥ ४॥
+
+भागवतरूपी देवा तूंचि अहेसी ।
+करूं ही आरति एका-जनार्दनासी ॥ जय ॥`
+      },
+
+      {
+        title: "जय हो जय श्री भागवता",
+        category: "भागवत",
+        search: "जय हो जय श्री भागवता आरती करू तुज भगवंता",
+        preview: "जय हो जय श्री भागवता...",
+        lyrics: `जय हो जय श्री भागवता
+जय हो जय श्री भागवता | आरती करू तुज भगवंता |
+
+श्री शुक मुनीने | परम भक्तीने | नाना परीने | गाईयेले ज्या हरि चरिता ||१||
+
+आरती…….
+वेद तरूचे मधुर फळ | स्वादु रसे जे सोज्वळ |
+आत्माराम मुनी अचल | सेवुनी झाले जन सुफळ |
+पाहा पर्वणी आणि | आली अवनी | हि अघ हरणी |
+भवजल तरणी | ती पतिता ||२|| आरती……
+
+येथे व्यासांची वाणी | सार्थक हरि गुण गाउनी |
+शास्त्र पुराणी मुकुटमणी | परम प्रेमामृत जननी |
+सहज सेविता | भाविक भक्ता | उदार दाता |
+मोक्ष तत्वता | दे हाता ||३|| आरती……
+
+गमते जणू मानस तीर्थ | व्दादश सोपाने युक्त |
+निर्मळ भक्ती जले भरीत | विहरे हरि हंसची चित्त |
+लोक सुकमळे | संत व्दिज कुळे | सेउनी रमले |
+भान हरपले | रस पिता ||४|| आरती…..
+
+अपार महिमा ग्रंथांचा | वदवेना कोणा साचा |
+प्राणची किर्तनकारांचा | मेवा कवीवर संतांचा |
+जणू बोधाचा | स्वयं प्रज्ञेचा | व्दादश कळीचा |
+रवी अंतरीचा | तम हरता ||५|| आरती…..
+
+ग्रंथ नोव्हे हा श्री कृष्ण | गीते वेधी मन पूर्ण |
+अनन्य होता या शरण | खचित टळे जन्म मरण |
+त्रिताप जाती | चिर ये शांती | नाथ हि वदती |
+कृष्ण पदी ठेऊ माथा ||६|| आरती……`
+      },
+      {
+        title: "श्री कृष्ण गोविन्द हरे मुरारी",
+        category: "कृष्ण",
+        search: "श्री कृष्ण गोविन्द हरे मुरारी नारायण वासुदेवा राधे",
+        preview: "हे नाथ नारायण वासुदेवा...",
+        lyrics: `<div class="chorus">सच्चिदानन्द रूपाय विश्वोत्पत्यादि हेतवे,
+तापत्रय विनाशाय श्री कृष्णाय वयं नमः॥</div>
+
+श्री कृष्ण गोविन्द हरे मुरारी,
+हे नाथ नारायण वासुदेवा॥
+हे नाथ नारायण वासुदेवा॥
+
+पितु मात स्वामी, सखा हमारे,
+हे नाथ नारायण वासुदेवा॥
+हे नाथ नारायण वासुदेवा॥
+
+बंदी गृह के तुम अवतारी,
+कहीं जन्मे, कहीं पले मुरारी।
+किसी के जाए, किसी के कहाए,
+है अद्भुत हर बात तिहारी॥
+
+गोकुल में चमके मथुरा के तारे,
+हे नाथ नारायण वासुदेवा॥
+श्री कृष्ण गोविन्द हरे मुरारी,
+हे नाथ नारायण वासुदेवा॥
+
+अधर पे बंशी, हृदय में राधे,
+बँट गए दोनों में आधे-आधे।
+हे राधा नागर, हे भक्त वत्सल,
+सदैव भक्तों के काम साधे॥
+
+जहाँ गए भक्तों ने पुकारे,
+हे नाथ नारायण वासुदेवा॥
+श्री कृष्ण गोविन्द हरे मुरारी,
+हे नाथ नारायण वासुदेवा॥
+
+गीता में उपदेश सुनाया,
+धर्म युद्ध को धर्म बताया।
+कर्म करो, फल की इच्छा त्यागो,
+यह संदेश तुम्हीं से पाया॥
+
+अमर हैं गीता के बोल सारे,
+हे नाथ नारायण वासुदेवा॥
+श्री कृष्ण गोविन्द हरे मुरारी,
+हे नाथ नारायण वासुदेवा॥
+
+त्वमेव माता च पिता त्वमेव,
+त्वमेव बन्धुश्च सखा त्वमेव।
+त्वमेव विद्या द्रविणं त्वमेव,
+त्वमेव सर्वं मम देवदेव॥
+
+राधे कृष्णा, राधे कृष्णा,
+राधे राधे, कृष्णा कृष्णा॥
+राधे कृष्णा, राधे कृष्णा,
+राधे राधे, कृष्णा कृष्णा॥
+
+हरी बोल, हरी बोल,
+हरी बोल, हरी बोल॥`
+      },
+      {
+        title: "हरी म्हणा तुम्ही गोविंद म्हणा",
+        category: "कृष्ण",
+        search: "हरी म्हणा तुम्ही गोविंद म्हणा गोपाल नाम स्मरण",
+        preview: "गोविन्द मना, गोपाल मना...",
+        lyrics: `हरी म्हणा तुम्ही गोविंद म्हणा
+तुम्ही गोपाळ म्हणा हरी नारायणा
+हरी म्हणा तुम्ही गोविंद म्हणा
+तुम्ही गोपाळ म्हणा हरी नारायणा 
+हरी म्हणा तुम्ही गोविंद म्हणा
+तुम्ही गोपाळ म्हणा हरी नारायणा  
+गोविंद गोपाळ हरी नारायणा
+गोविंद गोपाळ हरी नारायणा 
+हरी म्हणा तुम्ही गोविंद म्हणा 
+तुम्ही गोपाळ म्हणा हरी नारायणा (3)
+राम म्हणा राजाराम म्हणा
+सीताराम म्हणा आत्माराम म्हणा
+राम म्हणा राजाराम म्हणा
+सीताराम म्हणा आत्माराम म्हणा
+श्याम म्हणा घनश्याम म्हणा
+राधेश्याम म्हणा मेघश्याम म्हणा
+श्याम म्हणा घनश्याम म्हणा
+राधेश्याम म्हणा मेघश्याम म्हणा
+
+गोविंद गोपाळ हरी नारायणा
+गोविंद गोपाळ हरी नारायणा 
+हरी म्हणा तुम्ही गोविंद म्हणा 
+तुम्ही गोपाळ म्हणा हरी नारायणा (3)
+
+गोविंद गोपाळ हरी नारायणा
+गोविंद गोपाळ हरी नारायणा 
+हरी म्हणा तुम्ही गोविंद म्हणा 
+तुम्ही गोपाळ म्हणा हरी नारायणा (3)
+
+ईश म्हणा जगदीश म्हणा
+सर्वेश म्हणा परमेश म्हणा
+ईश म्हणा जगदीश म्हणा
+सर्वेश म्हणा परमेश म्हणा
+हरी म्हणा तुम्ही गोविंद म्हणा 
+तुम्ही गोपाळ म्हणा हरी नारायणा (३)
+
+दत्त म्हणा गुरुदत्त म्हणा
+श्रीपाद म्हणा गुरुदेव म्हणा
+दत्त म्हणा गुरुदत्त म्हणा
+श्रीपाद म्हणा गुरुदेव म्हणा
+गोविंद गोपाळ हरी नारायणा
+गोविंद गोपाळ हरी नारायणा 
+हरी म्हणा तुम्ही गोविंद म्हणा 
+तुम्ही गोपाळ म्हणा हरी नारायणा (3)`
+      },
+      {
+        title: "गोविन्द बोलो हरि गोपाल बोलो",
+        category: "कृष्ण",
+        search: "गोविन्द बोलो हरि गोपाल बोलो राधा रमण कीर्तन",
+        preview: "राधा रमण हरि गोविन्द बोलो...",
+        lyrics: `गोविन्द बोलो, हरि गोपाल बोलो,
+राधा रमण हरि गोविन्द बोलो॥
+
+राधा रमण हरि गोविन्द बोलो,
+गोविन्द बोलो, हरि गोपाल बोलो॥
+
+ब्रह्मा की जय-जय, विष्णु की जय-जय,
+ब्रह्मा की जय-जय, विष्णु की जय-जय।
+ज्ञान की देवी सरस्वती की जय-जय,
+ज्ञान की देवी सरस्वती की जय-जय॥
+गोविन्द बोलो, हरि गोपाल बोलो॥
+
+रामजी की जय-जय, लक्ष्मण जी की जय-जय,
+रामजी की जय-जय, लक्ष्मण जी की जय-जय।
+भरतजी की जय-जय, शत्रुघ्न जी की जय-जय,
+जनक दुलारी सीता माता की जय-जय॥
+गोविन्द बोलो, हरि गोपाल बोलो॥
+
+गंगा की जय-जय, यमुना की जय-जय,
+गंगा की जय-जय, यमुना की जय-जय।
+त्रिवेणी माता सरस्वती की जय-जय,
+त्रिवेणी माता सरस्वती की जय-जय॥
+गोविन्द बोलो, हरि गोपाल बोलो॥
+
+माता की जय-जय, पिता की जय-जय,
+माता की जय-जय, पिता की जय-जय।
+अपने-अपने गुरुदेव की जय-जय,
+अपने-अपने गुरुदेव की जय-जय॥
+गोविन्द बोलो, हरि गोपाल बोलो॥
+
+गोविन्द बोलो, हरि गोपाल बोलो,
+राधा रमण हरि गोविन्द बोलो॥
+राधा रमण हरि गोविन्द बोलो,
+गोविन्द बोलो, हरि गोपाल बोलो॥`
+      },{
+	  title: "जगन्नाथ चक्का नैन",
+        category: "जगन्नाथ",
+        search: "जगन्नाथ चक्का नैन लीला चल वा रे",
+        preview: "जगन्नाथ चक्का नैन...",
+	  lyrics:`जगन्नाथ चक्का नैन लीला चल वा रे
+तू ना संभाले तो हमे कौन संभाले
+
+मेरी ये नईया है अब तो तेरे हवाले
+तू ना संभाले तो हमे कौन संभाले
+
+शरण तेरी पड़ा रहूं दास बनाले
+तू ना संभाले तो हमे कौन संभाले
+
+तेरी ही सेवा करु जो चाहे कराले
+तू ना संभाले तो हमे कौन संभाले
+
+तुझपे ही सब छोड़ दिया, अपना बना ले
+तू ना संभाले तो हमे कौन संभाले`},
+{
+title: "राधे – राधे – राधे – राधे – राधे गोविंदा",
+        category: "कृष्ण",
+        search: "राधे – राधे – राधे – राधे – राधे गोविंदा",
+        preview: "राधे – राधे – राधे – राधे – राधे गोविंदा...",
+lyrics:`राधे – राधे – राधे – राधे – राधे गोविंदा
+राधे गोविंदा – वृंदावन चंद्र ॥
+अनाथनाथ दीनबंधु
+राधे गोविंदा ॥
+
+नंदकुमार नवनीतचोर
+राधे गोविंद
+राधे गोविंदा | वृंदावन चंद्र ॥
+अनाथनाथ दीनबंधु
+राधे गोविंदा ॥ राधे ॥
+
+यशोदा बाल यदुकुल तिलक
+राधे गोविंद
+राधे गोविंदा | वृंदावन चंद्र ॥
+अनाथनाथ दीनबंधु
+राधे गोविंदा ॥
+
+पंकजनाभ परम पवित्र
+राधे गोविंद
+राधे गोविंदा | वृंदावन चंद्र ॥
+अनाथनाथ दीनबंधु
+राधे गोविंदा ॥ राधे ॥
+
+मंदर गिरिधर मारुति स्तोत्र
+राधे गोविंद
+राधे गोविंदा | वृंदावन चंद्र ॥
+अनाथनाथ दीनबंधु
+राधे गोविंदा ॥ राधे ॥
+`},{title: "हमारे साथ श्री रघुनाथ",
+        category: "राम",
+        search: "हमारे साथ श्री रघुनाथ तो किस बात की चिंता",
+        preview: "हमारे साथ श्री रघुनाथ तो किस बात की चिंता",
+lyrics:`हमारे साथ श्री रघुनाथ तो किस बात की चिंता
+शरण में रख दिया जब माथ तो किस बात की चिंता ॥
+
+किया करते हो तुम दिन रात क्यों बिन बात की चिंता
+तेरे स्वामी को रहती है तेरे हर बात की चिंता ॥
+
+ना खाने की, ना पीने की, ना मरने की, ना जीने की
+रहे हर श्वास में भगवान के प्रिय नाम की चिंता ॥
+
+विभीषण को अभय वर दे किया लंकेश पल भर में
+उन्हीं का कर रहे गुणगान तो किस बात की चिंता ॥
+
+उन्हीं के हाथ में अब हाथ तो किस बात की चिंता
+हमारे साथ श्री रघुनाथ तो किस बात की चिंता ॥`
+},{
+title: "वनमाली वासुदेवा ",
+        category: "कृष्ण",
+        search: "वनमाली वासुदेवा मनमोहन राधारामना",
+        preview: "वनमाली वासुदेवा मनमोहन राधारामना",
+lyrics:`वनमाली वासुदेवा मनमोहन राधारामना,
+वनमाली वासुदेवा मनमोहन राधारामना।।
+
+शशि वधना सरसिज नयना जगमोहन राधारामना
+वनमाली वासुदेवा मनमोहन राधारामना।।`},
+{
+title: "दशरथ नंदन राम राम ",
+        category: "राम",
+        search: "दशरथ नंदन राम राम",
+        preview: "दशरथ नंदन राम राम",
+lyrics:`१) दशरथ नंदन राम राम
+दया सागर राम राम ॥
+
+२) पशुपति रंजन राम राम
+पाप विमोचन राम राम ॥
+दशरथ नंदन राम राम ॥
+
+३) लक्ष्मण सेवित राम राम
+लक्ष्मी मनोहर राम राम ॥
+दशरथ नंदन राम राम ॥
+
+४) रघुकुल तिलका राम राम
+रघुवंशोत्तम राम राम ॥
+दशरथ नंदन राम राम ॥
+
+५) सूक्ष्म रूपा राम राम
+सुंदर वदना राम राम ॥
+दशरथ नंदन राम राम ॥
+
+६) मणिमय भूषण राम राम
+मंजुला भाषण राम राम ॥
+दशरथ नंदन राम राम ॥`},{
+title: "अच्युताष्टकम् ",
+        category: "अष्टकम्",
+        search: "अच्युतं केशवं राम नारायणं",
+        preview: "अच्युतं केशवं राम नारायणं",
+lyrics:`अच्युतं केशवं राम नारायणं
+कृष्ण दामोदरं वासुदेवं हरिम् ।
+श्रीधरं माधवं गोपिका वल्लभं
+जानकीनायकं रामचन्द्रं भजे ॥१॥
+
+अच्युतं केशवं सत्यभामाधवं
+माधवं श्रीधरं राधिकाराधितम् ।
+इन्दिरा मन्दिरं चेतसा सुन्दरं
+देवकीनन्दनं नन्दजं सन्दधे ॥२॥
+
+विष्णवे जिष्णवे शङ्खिने चक्रिणे
+रुक्मिणीरागिणे जानकीजानये ।
+वल्लवीवल्लभायार्चितायात्मने
+कंसविध्वंसिने वंशीने ते नमः ॥३॥
+
+कृष्ण गोविन्द हे राम नारायण
+श्रीपते वासुदेवाजित श्रीनिधे ।
+अच्युतानन्त हे माधवाधोक्षज
+द्वारकानायक द्रौपदीरक्षक ॥४॥
+
+राक्षसक्षोभितः सीतया शोभितो
+दण्डकारण्यभूपुण्यता कारणः ।
+लक्ष्मणेनान्वितो वानरैः सेवितो
+अगस्त्यसम्पूजितो राघवः पातु माम् ॥५॥
+
+धेनुकारिष्टकानिष्टकृद्द्वेषिणां
+केशिहा कंसहृद्वंशीकवादकः ।
+पूतनाकोपकः सूरजाखेलनः
+बालगोपालकः पातु मां सर्वदा ॥६॥
+
+विद्युदुद्योतवत् प्रस्फुरद्वाससं
+प्रावृडम्भोदवत् प्रोल्लसद्विग्रहम् ।
+वन्यया मालया शोभितोरःस्थलं
+लोहिताङ्घ्रिद्वयं वारिजाक्षं भजे ॥७॥
+
+कुञ्चितैः कुन्तलैर्भ्राजमानाननं
+रत्नमौलिं लसत्कुण्डलं गण्डयोः ।
+हारकेयूरकं कङ्कणप्रोज्ज्वलं
+किंकिणीमञ्जुलं श्यामलं तं भजे ॥८॥
+
+फलश्रुति
+
+अच्युतस्याष्टकं यः पठेदिष्टदं
+प्रेमतः प्रत्यहं पुरुषः सस्पृहम् ।
+वृत्ततः सुन्दरं कर्तृविश्वम्भरः
+तस्य वश्यो हरिर्जायते सत्वरम् ॥
+
+॥ इति श्रीशङ्कराचार्यविरचितम् अच्युताष्टकं सम्पूर्णम् ॥`
+},
+{
+title: "मधुराष्टकम् ",
+        category: "अष्टकम्",
+        search: "अधरं मधुरं वदनं मधुरं",
+        preview: "अधरं मधुरं वदनं मधुरं",
+lyrics:`अधरं मधुरं वदनं मधुरं
+नयनं मधुरं हसितं मधुरम् ।
+हृदयं मधुरं गमनं मधुरं
+मधुराधिपतेरखिलं मधुरम् ॥१॥
+
+वचनं मधुरं चरितं मधुरं
+वसनं मधुरं वलितं मधुरम् ।
+चलितं मधुरं भ्रमितं मधुरं
+मधुराधिपतेरखिलं मधुरम् ॥२॥
+
+वेणुर्मधुरो रेणुर्मधुरः
+पाणिर्मधुरः पादौ मधुरौ ।
+नृत्यं मधुरं सख्यं मधुरं
+मधुराधिपतेरखिलं मधुरम् ॥३॥
+
+गीतं मधुरं पीतं मधुरं
+भुक्तं मधुरं सुप्तं मधुरम् ।
+रूपं मधुरं तिलकं मधुरं
+मधुराधिपतेरखिलं मधुरम् ॥४॥
+
+करणं मधुरं तरणं मधुरं
+हरणं मधुरं रमणं मधुरम् ।
+वमितं मधुरं शमितं मधुरं
+मधुराधिपतेरखिलं मधुरम् ॥५॥
+
+गुंजा मधुरा माला मधुरा
+यमुना मधुरा वीची मधुरा ।
+सलिलं मधुरं कमलं मधुरं
+मधुराधिपतेरखिलं मधुरम् ॥६॥
+
+गोपी मधुरा लीला मधुरा
+युक्तं मधुरं मुक्तं मधुरम् ।
+दृष्टं मधुरं शिष्टं मधुरं
+मधुराधिपतेरखिलं मधुरम् ॥७॥
+
+गोपा मधुरा गावो मधुरा
+यष्टिर्मधुरा सृष्टिर्मधुरा ।
+दलितं मधुरं फलितं मधुरं
+मधुराधिपतेरखिलं मधुरम् ॥८॥
+
+॥ इति श्रीवल्लभाचार्यविरचितं मधुराष्टकं सम्पूर्णम् ॥`}
+    ];
+
+    let selectedCategory = "सभी";
+    let currentSongIndex = 0;
+    let currentList = songs;
+    let lyricSize = 25;
+
+    function init() {
+      renderCategories();
+      renderSongs();
+    }
+
+    function renderCategories() {
+      const categories = ["सभी", ...new Set(songs.map(song => song.category))];
+      document.getElementById("categoryButtons").innerHTML = categories.map(cat => `
+        <button class="cat-btn ${cat === selectedCategory ? 'active' : ''}" onclick="selectCategory('${cat}')">${cat}</button>
+      `).join("");
+    }
+
+    function selectCategory(category) {
+      selectedCategory = category;
+      renderCategories();
+      renderSongs();
+    }
+
+    function renderSongs() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      currentList = songs.filter(song => {
+        const matchCategory = selectedCategory === "सभी" || song.category === selectedCategory;
+        const text = `${song.title} ${song.category} ${song.search}`.toLowerCase();
+        return matchCategory && text.includes(query);
+      });
+
+      document.getElementById("songCount").textContent = `${currentList.length} गीत उपलब्ध`;
+
+      const songList = document.getElementById("songList");
+      if (!currentList.length) {
+        songList.innerHTML = `<div class="empty">कोई भजन नहीं मिला</div>`;
+        return;
+      }
+
+      songList.innerHTML = currentList.map((song, index) => `
+        <article class="song-card" onclick="openSong(${index})">
+          <h2>${song.title}</h2>
+          <span class="badge">${song.category}</span>
+        </article>
+      `).join("");
+    }
+
+    function openSong(index) {
+      currentSongIndex = index;
+      const song = currentList[currentSongIndex];
+      document.getElementById("libraryView").style.display = "none";
+      document.querySelector(".app-header").style.display = "none";
+      document.getElementById("readerView").style.display = "block";
+      document.getElementById("readerTitle").textContent = song.title;
+      document.getElementById("readerCategory").textContent = song.category;
+      document.getElementById("readerLyrics").innerHTML = song.lyrics;
+      const note = document.getElementById("readerNote");
+      if (song.note) {
+        note.style.display = "block";
+        note.textContent = song.note;
+      } else {
+        note.style.display = "none";
+        note.textContent = "";
+      }
+      scrollTopPage();
+    }
+
+    function backToLibrary() {
+      document.getElementById("readerView").style.display = "none";
+      document.querySelector(".app-header").style.display = "block";
+      document.getElementById("libraryView").style.display = "block";
+      scrollTopPage();
+    }
+
+    function openRelativeSong(direction) {
+      if (!currentList.length) return;
+      currentSongIndex = (currentSongIndex + direction + currentList.length) % currentList.length;
+      openSong(currentSongIndex);
+    }
+
+    function changeFont(change) {
+      lyricSize = Math.max(19, Math.min(38, lyricSize + change));
+      document.documentElement.style.setProperty('--lyricSize', lyricSize + 'px');
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
+    }
+
+    function scrollTopPage() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    init();
+  </script>
+</body>
+</html>
